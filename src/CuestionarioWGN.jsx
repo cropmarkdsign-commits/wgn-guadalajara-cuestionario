@@ -737,6 +737,15 @@ export default function CuestionarioWGN() {
                         }}>📍 {c}</span>
                       ))}
                     </div>
+                    <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(200,164,81,.25)" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "#fff", marginBottom: 6 }}>
+                        🚚 ENTREGA POR MENSAJERÍA
+                      </div>
+                      <p style={{ fontSize: 12.5, color: "rgba(255,255,255,.75)", margin: 0, lineHeight: 1.55, fontWeight: 300 }}>
+                        Pides <strong style={{ color: "#C8A451" }}>antes de las 11 am</strong>: te llega el mismo día por la tarde.<br />
+                        Pides <strong style={{ color: "#C8A451" }}>después de las 11 am</strong>: al día siguiente por la tarde.
+                      </p>
+                    </div>
                   </div>
                   <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
                     style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", boxShadow: "0 12px 30px rgba(37,211,102,.35)" }}>
