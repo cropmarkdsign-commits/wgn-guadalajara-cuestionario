@@ -42,13 +42,25 @@ const SYSTEME = {
     nombre: "name",        // ← name del input de nombre en tu formulario
     correo: "email",       // ← name del input de correo
     whatsapp: "phone",     // ← name del input de teléfono
+    estado: "state",       // ← name del input de estado (créalo en tu formulario)
     ciudad: "city",        // ← name del input de ciudad
     producto: "producto_recomendado", // ← name del campo personalizado del producto
   },
 };
 
 // Ciudades de la Zona Metropolitana de Guadalajara → venta local por WhatsApp
-const GDL_METRO = ["guadalajara", "zapopan", "tonala", "tlaquepaque", "gdl", "zmg"];
+const GDL_METRO = ["guadalajara", "zapopan", "tonala", "tlaquepaque", "gdl", "zmg", "tlajomulco", "el salto", "salto"];
+
+// 32 estados de México (orden alfabético)
+const ESTADOS_MX = [
+  "Aguascalientes", "Baja California", "Baja California Sur", "Campeche",
+  "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima",
+  "Durango", "Estado de México", "Guanajuato", "Guerrero", "Hidalgo",
+  "Jalisco", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca",
+  "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa",
+  "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán",
+  "Zacatecas",
+];
 
 // ---- Identidad por producto (color de línea v2) ----
 const PRODUCTS = {
@@ -122,11 +134,10 @@ const STEPS = [
     placeholder: "tucorreo@ejemplo.com",
   },
   {
-    id: "ciudad",
-    type: "text",
-    q: "¿En qué ciudad vives?",
+    id: "ubicacion",
+    type: "estado_ciudad",
+    q: "¿Dónde vives?",
     sub: "Así sabemos cómo hacerte llegar tu producto.",
-    placeholder: "Ej. Zapopan, CDMX, Monterrey…",
   },
   {
     id: "sobrepeso",
@@ -212,7 +223,9 @@ function normaliza(txt) {
     .trim();
 }
 
-function esGDLMetro(ciudad) {
+function esGDLMetro(estado, ciudad) {
+  // Local solo si es Jalisco Y la ciudad escrita es de la zona metropolitana
+  if (normaliza(estado) !== "jalisco") return false;
   const c = normaliza(ciudad);
   return GDL_METRO.some((m) => c.includes(m));
 }
@@ -236,7 +249,7 @@ export default function CuestionarioWGN() {
   const progress = step < 0 ? 0 : Math.round((step / total) * 100);
 
   const producto = useMemo(() => ((done || revealing) ? PRODUCTS[decidirProducto(answers)] : null), [done, revealing, answers]);
-  const local = useMemo(() => (done ? esGDLMetro(answers.ciudad) : false), [done, answers]);
+  const local = useMemo(() => (done ? esGDLMetro(answers.estado, answers.ciudad) : false), [done, answers]);
   const flagMedica = useMemo(
     () => {
       const s = answers.salud || [];
@@ -264,6 +277,7 @@ export default function CuestionarioWGN() {
   function canAdvance() {
     if (!current) return false;
     const v = answers[current.id];
+    if (current.type === "estado_ciudad") return answers.estado && answers.ciudad && answers.ciudad.trim().length > 1;
     if (current.type === "email") return v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
     if (current.type === "text" || current.type === "tel") return v && v.trim().length > 1;
     if (current.type === "multi") return Array.isArray(v) && v.length > 0;
@@ -278,9 +292,10 @@ export default function CuestionarioWGN() {
       nombre: finalAnswers.nombre || "",
       correo: finalAnswers.correo || "",
       whatsapp: finalAnswers.whatsapp || "",
+      estado: finalAnswers.estado || "",
       ciudad: finalAnswers.ciudad || "",
       producto: nombreProducto,
-      zona: esGDLMetro(finalAnswers.ciudad) ? "GDL Metro (contra entrega)" : "Nacional (envío)",
+      zona: esGDLMetro(finalAnswers.estado, finalAnswers.ciudad) ? "GDL Metro (contra entrega)" : "Nacional (envío)",
       fecha: new Date().toISOString(),
     };
 
@@ -295,6 +310,7 @@ export default function CuestionarioWGN() {
     fd.append(SYSTEME.fields.nombre, lead.nombre);
     fd.append(SYSTEME.fields.correo, lead.correo);
     fd.append(SYSTEME.fields.whatsapp, lead.whatsapp);
+    fd.append(SYSTEME.fields.estado, lead.estado);
     fd.append(SYSTEME.fields.ciudad, lead.ciudad);
     fd.append(SYSTEME.fields.producto, lead.producto);
 
@@ -340,6 +356,7 @@ export default function CuestionarioWGN() {
       `Mis datos:\n` +
       `• Nombre: ${answers.nombre || "—"}\n` +
       `• Correo: ${answers.correo || "—"}\n` +
+      `• Estado: ${answers.estado || "—"}\n` +
       `• Ciudad: ${answers.ciudad || "—"}\n` +
       `• Primera vez: ${primeraTxt}\n` +
       `• Condiciones: ${condTxt}\n` +
@@ -356,6 +373,7 @@ export default function CuestionarioWGN() {
       `Mis datos:\n` +
       `• Nombre: ${answers.nombre || "—"}\n` +
       `• Correo: ${answers.correo || "—"}\n` +
+      `• Estado: ${answers.estado || "—"}\n` +
       `• Ciudad: ${answers.ciudad || "—"}\n` +
       `• Producto base recomendado: ${producto.name}`;
     return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
@@ -504,6 +522,55 @@ export default function CuestionarioWGN() {
                 onFocus={(e) => (e.target.style.borderColor = "#5C8A28")}
                 onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,.12)")}
               />
+            )}
+
+            {current.type === "estado_ciudad" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, opacity: 0.6, marginBottom: 8, fontWeight: 500 }}>Estado</label>
+                  <select
+                    value={answers.estado || ""}
+                    onChange={(e) => setAns("estado", e.target.value)}
+                    style={{
+                      width: "100%", padding: "18px 20px", fontSize: 17, borderRadius: 14,
+                      border: "1.5px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)",
+                      color: answers.estado ? "#F0EBE3" : "rgba(240,235,227,.35)", fontFamily: "Outfit",
+                      outline: "none", appearance: "none",
+                      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23C8A451' d='M6 8L0 0h12z'/%3E%3C/svg%3E\")",
+                      backgroundRepeat: "no-repeat", backgroundPosition: "right 20px center",
+                    }}
+                    onFocus={(e) => (e.target.style.borderColor = "#5C8A28")}
+                    onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,.12)")}
+                  >
+                    <option value="" disabled style={{ color: "#333" }}>Selecciona tu estado…</option>
+                    {ESTADOS_MX.map((est) => (
+                      <option key={est} value={est} style={{ color: "#111", background: "#fff" }}>{est}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, opacity: 0.6, marginBottom: 8, fontWeight: 500 }}>Ciudad o municipio</label>
+                  <input
+                    type="text"
+                    value={answers.ciudad || ""}
+                    onChange={(e) => setAns("ciudad", e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && canAdvance() && next()}
+                    placeholder="Escribe tu ciudad o municipio"
+                    style={{
+                      width: "100%", padding: "18px 20px", fontSize: 17, borderRadius: 14,
+                      border: "1.5px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)",
+                      color: "#F0EBE3", fontFamily: "Outfit", outline: "none",
+                    }}
+                    onFocus={(e) => (e.target.style.borderColor = "#5C8A28")}
+                    onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,.12)")}
+                  />
+                  {normaliza(answers.estado) === "jalisco" && (
+                    <p style={{ fontSize: 12, opacity: 0.55, marginTop: 8, lineHeight: 1.4 }}>
+                      Si eres de Guadalajara, Zapopan, Tonalá o Tlaquepaque, escríbelo tal cual para acceder a pago contra entrega.
+                    </p>
+                  )}
+                </div>
+              </div>
             )}
 
             {current.type === "single" && (
@@ -763,7 +830,7 @@ export default function CuestionarioWGN() {
                     borderRadius: 20, padding: "20px", marginBottom: 18, textAlign: "center",
                   }}>
                     <p style={{ fontSize: 14.5, color: "rgba(240,235,227,.85)", margin: "0 0 14px", fontWeight: 300, lineHeight: 1.5 }}>
-                      Conoce todo sobre <strong style={{ color: producto.accent, fontWeight: 700 }}>{producto.name}</strong> y pide el tuyo con envío a todo México.
+                      Envío a todo México. Escríbenos y coordinamos tu <strong style={{ color: producto.accent, fontWeight: 700 }}>{producto.name}</strong>.
                     </p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
                       <span style={{
@@ -778,9 +845,9 @@ export default function CuestionarioWGN() {
                       }}>🔒 PAGO 100% SEGURO · MERCADO PAGO</span>
                     </div>
                   </div>
-                  <a href={landingLink} target="_blank" rel="noreferrer" className="wgn-btn"
-                    style={{ display: "block", textAlign: "center", background: producto.accent, color: producto.accent === "#C8A451" ? "#1A2F43" : "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", boxShadow: `0 12px 30px ${producto.accent}55` }}>
-                    Ver {producto.name} →
+                  <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
+                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", boxShadow: "0 12px 30px rgba(37,211,102,.35)" }}>
+                    Quiero adquirir {producto.name} →
                   </a>
                 </>
               )}
@@ -828,22 +895,38 @@ export default function CuestionarioWGN() {
 
                 {/* Características de los complementos */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-                  <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.08)" }}>
-                    <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 6 }}>
-                      XGaneem <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.55 }}>· tu mañana</span>
+                  <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.08)" }}>
+                    <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 15, color: "#fff", marginBottom: 8 }}>
+                      XGaneem <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.55 }}>· Moringa + Neem · tu mañana</span>
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12.5, lineHeight: 1.6, opacity: 0.8 }}>
-                      <li>A base de Moringa + Neem · 90 cápsulas</li>
-                      <li>Se toma en la mañana, después del desayuno</li>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#5C8A28", marginBottom: 4 }}>MODO DE USO</div>
+                    <p style={{ margin: "0 0 10px", fontSize: 12.5, lineHeight: 1.55, opacity: 0.8 }}>
+                      Tomar de 1 a 3 cápsulas cada día, después del desayuno. Sigue las recomendaciones de tu Distribuidor Autorizado.
+                    </p>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#5C8A28", marginBottom: 4 }}>BENEFICIOS</div>
+                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12.5, lineHeight: 1.6, opacity: 0.85 }}>
+                      <li>Fortalece el sistema inmunológico</li>
+                      <li>Disminuye los niveles de glucosa en la sangre</li>
+                      <li>Mejora la digestión</li>
+                      <li>Reduce la ansiedad</li>
+                      <li>Purifica la sangre al eliminar toxinas</li>
+                      <li>Aumenta la energía</li>
                     </ul>
                   </div>
-                  <div style={{ padding: "12px 14px", borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.08)" }}>
-                    <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 6 }}>
-                      Eaukalin <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.55 }}>· durante el día</span>
+                  <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.08)" }}>
+                    <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 15, color: "#fff", marginBottom: 8 }}>
+                      Eaukalin <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.55 }}>· rinde para 40 litros · durante el día</span>
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12.5, lineHeight: 1.6, opacity: 0.8 }}>
-                      <li>Líquido para preparar agua alcalina · 20 ml</li>
-                      <li>Unas gotas en tu agua a lo largo del día</li>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#D4700A", marginBottom: 4 }}>MODO DE USO</div>
+                    <p style={{ margin: "0 0 10px", fontSize: 12.5, lineHeight: 1.55, opacity: 0.8 }}>
+                      Agregar 10 gotas en un litro de agua. No exceder de 10 gotas al día. Sigue las recomendaciones de tu Distribuidor Autorizado.
+                    </p>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#D4700A", marginBottom: 4 }}>BENEFICIOS</div>
+                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12.5, lineHeight: 1.6, opacity: 0.85 }}>
+                      <li>Antioxidante</li>
+                      <li>Desintoxica el organismo</li>
+                      <li>Compensa la dieta ácida</li>
+                      <li>Combate problemas de salud asociados con desechos ácidos</li>
                     </ul>
                   </div>
                 </div>
@@ -855,7 +938,7 @@ export default function CuestionarioWGN() {
 
                 <a href={waLinkTrio} target="_blank" rel="noreferrer" className="wgn-btn"
                   style={{ display: "block", textAlign: "center", background: "transparent", color: "#C8A451", border: "1.5px solid #C8A451", padding: "14px", fontSize: 15, fontWeight: 700, borderRadius: 99, textDecoration: "none" }}>
-                  Pídelo por WhatsApp →
+                  Pide tu Trío por WhatsApp →
                 </a>
               </div>
             )}
