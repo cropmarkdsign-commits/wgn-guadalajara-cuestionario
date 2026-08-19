@@ -420,6 +420,9 @@ export default function CuestionarioWGN() {
         .fade { animation: fadeUp .4s ease both; }
         @keyframes codGlow { 0%,100%{box-shadow:0 14px 40px rgba(200,164,81,.22)} 50%{box-shadow:0 14px 48px rgba(200,164,81,.45)} }
         .cod-pulse { animation: fadeUp .5s ease both, codGlow 2.6s ease-in-out infinite .5s; }
+        @keyframes nudgeBounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+        .cta-nudge { animation: nudgeBounce 1.6s ease-in-out infinite; }
+        @keyframes waGlow { 0%,100%{box-shadow:0 12px 30px rgba(37,211,102,.35);} 50%{box-shadow:0 12px 42px rgba(37,211,102,.7);} }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes ringSpin { to { transform: rotate(360deg); } }
         @keyframes popIn { 0%{opacity:0; transform: scale(.6) translateY(30px);} 60%{opacity:1; transform: scale(1.06) translateY(0);} 100%{transform: scale(1) translateY(0);} }
@@ -818,8 +821,16 @@ export default function CuestionarioWGN() {
                       </p>
                     </div>
                   </div>
+                  <div className="cta-nudge" style={{ textAlign: "center", marginBottom: 12 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 3 }}>
+                      👇 ¿Lo quieres? Toca el botón para apartarlo
+                    </div>
+                    <div style={{ fontSize: 12.5, opacity: 0.6, fontWeight: 300 }}>
+                      Te atendemos personalmente por WhatsApp.
+                    </div>
+                  </div>
                   <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
-                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", boxShadow: "0 12px 30px rgba(37,211,102,.35)" }}>
+                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", animation: "waGlow 2s ease-in-out infinite" }}>
                     Pídelo por WhatsApp →
                   </a>
                 </>
@@ -845,8 +856,16 @@ export default function CuestionarioWGN() {
                       }}>🔒 PAGO 100% SEGURO · MERCADO PAGO</span>
                     </div>
                   </div>
+                  <div className="cta-nudge" style={{ textAlign: "center", marginBottom: 12 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 3 }}>
+                      👇 ¿Lo quieres? Toca el botón para apartarlo
+                    </div>
+                    <div style={{ fontSize: 12.5, opacity: 0.6, fontWeight: 300 }}>
+                      Te atendemos personalmente por WhatsApp.
+                    </div>
+                  </div>
                   <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
-                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", boxShadow: "0 12px 30px rgba(37,211,102,.35)" }}>
+                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", animation: "waGlow 2s ease-in-out infinite" }}>
                     Quiero adquirir {producto.name} →
                   </a>
                 </>
@@ -860,11 +879,14 @@ export default function CuestionarioWGN() {
                 background: "rgba(255,255,255,.04)", border: "1px dashed rgba(200,164,81,.4)",
               }}>
                 <div style={{ textAlign: "center", marginBottom: 16 }}>
-                  <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 13, letterSpacing: 2, color: "#C8A451", marginBottom: 4 }}>
-                    ¿QUIERES POTENCIAR TU PROCESO?
+                  <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 13, letterSpacing: 2, color: "#C8A451", marginBottom: 6 }}>
+                    LLÉVATE EL TRÍO REFORZADO
                   </div>
-                  <div style={{ fontSize: 14, opacity: 0.65, fontWeight: 300 }}>
-                    Suma tu rutina de mañana y día con el Trío completo.
+                  <div style={{ fontSize: 14.5, color: "#F0EBE3", fontWeight: 400, lineHeight: 1.5, marginBottom: 4 }}>
+                    Además de tu <strong style={{ color: producto.accent, fontWeight: 700 }}>{producto.name}</strong>, súmale <strong style={{ color: "#fff" }}>XGaneem</strong> y <strong style={{ color: "#fff" }}>Eaukalin</strong>.
+                  </div>
+                  <div style={{ fontSize: 13, opacity: 0.6, fontWeight: 300 }}>
+                    El mismo producto que ya te recomendamos, reforzado con dos complementos para potenciar tu proceso.
                   </div>
                 </div>
 
@@ -933,7 +955,7 @@ export default function CuestionarioWGN() {
 
                 <div style={{ textAlign: "center", marginBottom: 14 }}>
                   <span style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 26, color: "#C8A451" }}>{producto.trio}</span>
-                  <span style={{ fontSize: 13, opacity: 0.55, marginLeft: 8 }}>el Trío completo</span>
+                  <span style={{ fontSize: 13, opacity: 0.55, marginLeft: 8 }}>los 3 productos</span>
                 </div>
 
                 <a href={waLinkTrio} target="_blank" rel="noreferrer" className="wgn-btn"
