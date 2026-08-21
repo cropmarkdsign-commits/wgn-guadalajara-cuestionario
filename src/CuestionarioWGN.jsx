@@ -380,6 +380,8 @@ export default function CuestionarioWGN() {
   }, [producto, answers]);
 
   const prodKey = (done || revealing) ? decidirProducto(answers) : null;
+  // Color de texto de la tarjeta: claro si el fondo es oscuro (Control+), oscuro si es claro
+  const txtCard = producto ? (prodKey === "controlplus" ? "#F0EBE3" : producto.dark) : "#000";
   const landingLink = producto ? LANDINGS[decidirProducto(answers)] : "#";
 
   // ===================== ESTILOS =====================
@@ -673,7 +675,7 @@ export default function CuestionarioWGN() {
             </div>
 
             <div className="reveal-card" style={{
-              background: producto.accentSoft, color: producto.dark, borderRadius: 24,
+              background: producto.accentSoft, color: txtCard, borderRadius: 24,
               padding: "36px 30px", textAlign: "center", border: `2px solid ${producto.accent}`,
               boxShadow: `0 20px 50px ${producto.accent}40`,
             }}>
@@ -687,18 +689,19 @@ export default function CuestionarioWGN() {
                 <img src={FOTOS[prodKey]} alt={producto.name}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-              <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 36, color: producto.dark, lineHeight: 1 }}>
+              <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 36, color: txtCard, lineHeight: 1 }}>
                 {producto.name}
               </div>
               <div style={{ fontSize: 15, fontWeight: 600, color: producto.accent, margin: "10px 0 18px", fontStyle: "italic" }}>
                 "{producto.tag}"
               </div>
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: producto.dark, opacity: 0.85, margin: 0, fontWeight: 400 }}>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: txtCard, opacity: 0.85, margin: 0, fontWeight: 400 }}>
                 {producto.desc}
               </p>
-              <div style={{ marginTop: 22, paddingTop: 20, borderTop: `1px solid ${producto.accent}40` }}>
-                <span style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 38, color: producto.dark }}>{producto.price}</span>
-                <span style={{ fontSize: 13, color: producto.dark, opacity: 0.6, marginLeft: 8 }}>precio individual</span>
+              <div style={{ marginTop: 24, paddingTop: 22, borderTop: `1px solid ${producto.accent}40` }}>
+                <div style={{ fontSize: 12, letterSpacing: 1, color: txtCard, opacity: 0.6, fontWeight: 600, marginBottom: 2 }}>PRECIO ESPECIAL</div>
+                <span style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 58, color: txtCard, lineHeight: 1 }}>{producto.price}</span>
+                <div style={{ fontSize: 13, color: txtCard, opacity: 0.6, marginTop: 2 }}>precio individual</div>
               </div>
             </div>
 
@@ -709,9 +712,90 @@ export default function CuestionarioWGN() {
               </div>
             )}
 
-            {/* ===== Acompañamiento + App de seguimiento ===== */}
+            {/* ===== 1. CTA + BOTÓN (justo después del precio) ===== */}
+            <div style={{ marginTop: 22 }}>
+              <div className="cta-nudge" style={{ textAlign: "center", marginBottom: 12 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 3 }}>
+                  👇 ¿Lo quieres? Toca el botón para apartarlo
+                </div>
+                <div style={{ fontSize: 12.5, opacity: 0.6, fontWeight: 300 }}>
+                  Te atendemos personalmente por WhatsApp.
+                </div>
+              </div>
+              <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
+                style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", animation: "waGlow 2s ease-in-out infinite" }}>
+                {local ? "Pídelo por WhatsApp →" : `Quiero adquirir ${producto.name} →`}
+              </a>
+            </div>
+
+            {/* ===== 2. INFO DE PAGO ===== */}
+            <div style={{ marginTop: 18 }}>
+              {local ? (
+                <div className="cod-pulse" style={{
+                  background: "linear-gradient(135deg, #1B5E20 0%, #0d3311 100%)",
+                  border: "2px solid #C8A451", borderRadius: 20, padding: "22px 20px",
+                  textAlign: "center", position: "relative", overflow: "hidden",
+                  boxShadow: "0 14px 40px rgba(200,164,81,.28)",
+                }}>
+                  <div style={{
+                    display: "inline-flex", alignItems: "center", gap: 8, background: "#C8A451",
+                    color: "#0d3311", fontWeight: 800, fontSize: 12, letterSpacing: 1.5,
+                    padding: "6px 14px", borderRadius: 99, marginBottom: 14, fontFamily: "Oswald",
+                  }}>
+                    💵 EXCLUSIVO TU ZONA
+                  </div>
+                  <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 26, color: "#fff", lineHeight: 1.05, marginBottom: 6 }}>
+                    PAGO CONTRA ENTREGA
+                  </div>
+                  <p style={{ fontSize: 14, color: "rgba(255,255,255,.8)", margin: "0 0 14px", fontWeight: 300 }}>
+                    Pagas cuando recibes. Sin riesgo, sin adelanto.
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center" }}>
+                    {["Guadalajara", "Zapopan", "Tonalá", "Tlaquepaque"].map((c) => (
+                      <span key={c} style={{
+                        fontSize: 12.5, fontWeight: 600, color: "#C8A451",
+                        border: "1px solid rgba(200,164,81,.45)", borderRadius: 99,
+                        padding: "5px 12px", background: "rgba(200,164,81,.08)",
+                      }}>📍 {c}</span>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(200,164,81,.25)" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "#fff", marginBottom: 6 }}>
+                      🚚 ENTREGA POR MENSAJERÍA
+                    </div>
+                    <p style={{ fontSize: 12.5, color: "rgba(255,255,255,.75)", margin: 0, lineHeight: 1.55, fontWeight: 300 }}>
+                      Pides <strong style={{ color: "#C8A451" }}>antes de las 11 am</strong>: te llega el mismo día por la tarde.<br />
+                      Pides <strong style={{ color: "#C8A451" }}>después de las 11 am</strong>: al día siguiente por la tarde.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.12)",
+                  borderRadius: 20, padding: "20px", textAlign: "center",
+                }}>
+                  <p style={{ fontSize: 14.5, color: "rgba(240,235,227,.85)", margin: "0 0 14px", fontWeight: 300, lineHeight: 1.5 }}>
+                    Envío a todo México. Escríbenos y coordinamos tu <strong style={{ color: producto.accent, fontWeight: 700 }}>{producto.name}</strong>.
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700,
+                      color: "#fff", background: "linear-gradient(135deg,#00C853,#1B5E20)",
+                      borderRadius: 99, padding: "8px 16px", boxShadow: "0 6px 18px rgba(0,200,83,.3)",
+                    }}>🚚 ENVÍO GRATIS</span>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700,
+                      color: "#fff", background: "#009EE3", borderRadius: 99, padding: "8px 16px",
+                      boxShadow: "0 6px 18px rgba(0,158,227,.3)",
+                    }}>🔒 PAGO 100% SEGURO · MERCADO PAGO</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ===== 3. Acompañamiento + App WGN Mi Proceso ===== */}
             <div style={{
-              marginTop: 22, padding: "26px 22px", borderRadius: 20, overflow: "hidden",
+              marginTop: 18, padding: "26px 22px", borderRadius: 20, overflow: "hidden",
               background: "linear-gradient(135deg, rgba(92,138,40,.15), rgba(196,80,42,.12))",
               border: "1px solid rgba(255,255,255,.12)", position: "relative",
             }}>
@@ -772,104 +856,11 @@ export default function CuestionarioWGN() {
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                   <span style={{ fontSize: 22, lineHeight: 1 }}>📱</span>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14.5, color: "#F0EBE3" }}>App interactiva de seguimiento</div>
+                    <div style={{ fontWeight: 700, fontSize: 14.5, color: "#F0EBE3" }}>App interactiva "WGN Mi Proceso"</div>
                     <div style={{ fontSize: 13, opacity: 0.7, lineHeight: 1.5, fontWeight: 300 }}>Tu dosis del día, recordatorios y tu racha de constancia. Incluida sin costo.</div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* CTA según ubicación */}
-            <div style={{ marginTop: 26 }}>
-              {local ? (
-                <>
-                  <div className="cod-pulse" style={{
-                    background: "linear-gradient(135deg, #1B5E20 0%, #0d3311 100%)",
-                    border: "2px solid #C8A451", borderRadius: 20, padding: "22px 20px",
-                    marginBottom: 18, textAlign: "center", position: "relative", overflow: "hidden",
-                    boxShadow: "0 14px 40px rgba(200,164,81,.28)",
-                  }}>
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 8, background: "#C8A451",
-                      color: "#0d3311", fontWeight: 800, fontSize: 12, letterSpacing: 1.5,
-                      padding: "6px 14px", borderRadius: 99, marginBottom: 14, fontFamily: "Oswald",
-                    }}>
-                      💵 EXCLUSIVO TU ZONA
-                    </div>
-                    <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 26, color: "#fff", lineHeight: 1.05, marginBottom: 6 }}>
-                      PAGO CONTRA ENTREGA
-                    </div>
-                    <p style={{ fontSize: 14, color: "rgba(255,255,255,.8)", margin: "0 0 14px", fontWeight: 300 }}>
-                      Pagas cuando recibes. Sin riesgo, sin adelanto.
-                    </p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center" }}>
-                      {["Guadalajara", "Zapopan", "Tonalá", "Tlaquepaque"].map((c) => (
-                        <span key={c} style={{
-                          fontSize: 12.5, fontWeight: 600, color: "#C8A451",
-                          border: "1px solid rgba(200,164,81,.45)", borderRadius: 99,
-                          padding: "5px 12px", background: "rgba(200,164,81,.08)",
-                        }}>📍 {c}</span>
-                      ))}
-                    </div>
-                    <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(200,164,81,.25)" }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "#fff", marginBottom: 6 }}>
-                        🚚 ENTREGA POR MENSAJERÍA
-                      </div>
-                      <p style={{ fontSize: 12.5, color: "rgba(255,255,255,.75)", margin: 0, lineHeight: 1.55, fontWeight: 300 }}>
-                        Pides <strong style={{ color: "#C8A451" }}>antes de las 11 am</strong>: te llega el mismo día por la tarde.<br />
-                        Pides <strong style={{ color: "#C8A451" }}>después de las 11 am</strong>: al día siguiente por la tarde.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="cta-nudge" style={{ textAlign: "center", marginBottom: 12 }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 3 }}>
-                      👇 ¿Lo quieres? Toca el botón para apartarlo
-                    </div>
-                    <div style={{ fontSize: 12.5, opacity: 0.6, fontWeight: 300 }}>
-                      Te atendemos personalmente por WhatsApp.
-                    </div>
-                  </div>
-                  <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
-                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", animation: "waGlow 2s ease-in-out infinite" }}>
-                    Pídelo por WhatsApp →
-                  </a>
-                </>
-              ) : (
-                <>
-                  <div style={{
-                    background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.12)",
-                    borderRadius: 20, padding: "20px", marginBottom: 18, textAlign: "center",
-                  }}>
-                    <p style={{ fontSize: 14.5, color: "rgba(240,235,227,.85)", margin: "0 0 14px", fontWeight: 300, lineHeight: 1.5 }}>
-                      Envío a todo México. Escríbenos y coordinamos tu <strong style={{ color: producto.accent, fontWeight: 700 }}>{producto.name}</strong>.
-                    </p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-                      <span style={{
-                        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700,
-                        color: "#fff", background: "linear-gradient(135deg,#00C853,#1B5E20)",
-                        borderRadius: 99, padding: "8px 16px", boxShadow: "0 6px 18px rgba(0,200,83,.3)",
-                      }}>🚚 ENVÍO GRATIS</span>
-                      <span style={{
-                        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700,
-                        color: "#fff", background: "#009EE3", borderRadius: 99, padding: "8px 16px",
-                        boxShadow: "0 6px 18px rgba(0,158,227,.3)",
-                      }}>🔒 PAGO 100% SEGURO · MERCADO PAGO</span>
-                    </div>
-                  </div>
-                  <div className="cta-nudge" style={{ textAlign: "center", marginBottom: 12 }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 3 }}>
-                      👇 ¿Lo quieres? Toca el botón para apartarlo
-                    </div>
-                    <div style={{ fontSize: 12.5, opacity: 0.6, fontWeight: 300 }}>
-                      Te atendemos personalmente por WhatsApp.
-                    </div>
-                  </div>
-                  <a href={waLink} target="_blank" rel="noreferrer" className="wgn-btn"
-                    style={{ display: "block", textAlign: "center", background: "#25D366", color: "#fff", padding: "20px", fontSize: 17, fontWeight: 700, borderRadius: 99, textDecoration: "none", animation: "waGlow 2s ease-in-out infinite" }}>
-                    Quiero adquirir {producto.name} →
-                  </a>
-                </>
-              )}
             </div>
 
             {/* ===== TRÍO opcional (upsell) — no se muestra para Alipotec ===== */}
